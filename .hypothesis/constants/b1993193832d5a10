@@ -1,0 +1,4 @@
+# file: C:\Users\USER\Desktop\desktop-app\src\models\enums.py
+# hypothesis_version: 6.149.1
+
+['BO', 'BUY', 'CNC', 'CO', 'INTRADAY', 'MARGIN', 'SELL', 'cancelled', 'completed', 'open', 'pending', 'rejected', 'trigger_pending']

@@ -1,0 +1,4 @@
+# file: C:\Users\USER\Desktop\desktop-app\src\services\broker_service.py
+# hypothesis_version: 6.149.1
+
+['BROKER_API_KEY', 'BROKER_API_SECRET', 'client_id', 'code', 'fyers_auth', 'message', 'redirect_uri', 'response_type', 'state']

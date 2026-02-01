@@ -1,0 +1,4 @@
+# file: C:\Users\USER\Desktop\desktop-app\src\database\schema.py
+# hypothesis_version: 6.149.1
+
+[100, 255, 'CASCADE', 'UserModel', 'WatchlistModel', 'all, delete-orphan', 'broker_credentials', 'credentials', 'exchange', 'idx_users_username', 'symbol', 'user', 'user_id', 'username', 'users', 'users.id', 'watchlist', 'watchlist_items']
