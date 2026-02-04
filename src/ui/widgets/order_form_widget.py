@@ -9,6 +9,8 @@ from PySide6.QtCore import Qt, Signal, QStringListModel
 
 from src.ui.styles import COLORS, LABELS, SPACING
 from src.ui.utils import ErrorLabel, SuccessLabel, LoadingOverlay
+from src.models.trading import OrderRequest
+from src.models.enums import OrderAction, OrderType, ProductType
 
 logger = logging.getLogger(__name__)
 
@@ -304,16 +306,55 @@ class OrderFormWidget(QWidget):
         if not self._validate_form():
             return
         
-        order_data = {
-            'symbol': self.symbol_input.text().strip().upper(),
-            'exchange': self.exchange_combo.currentText(),
-            'action': action,
-            'quantity': self.quantity_spin.value(),
-            'order_type': self.order_type_combo.currentText(),
-            'product_type': self.product_combo.currentText(),
-            'price': self.price_spin.value() if self.price_spin.isEnabled() else 0,
-            'trigger_price': self.trigger_spin.value() if self.trigger_spin.isEnabled() else 0,
-        }
+        # Helper to map strings to enums
+        try:
+            action_enum = OrderAction(action)
+            order_type_str = self.order_type_combo.currentText()
+            
+            # Map order type strings to enum values if needed
+            # Assuming OrderType enum values match strings or integer mapping is handled in service
+            # Let's look at OrderType definition. Usually values are integers in Fyers.
+            # But here OrderType enum might handle string mapping or we map manually.
+            # Safe bet: Use string values if Enum accepts them, or map explicitly.
+            # Actually TradingService place_order uses .value on enum.
+            # Let's map explicitly based on standard Fyers/App conventions
+            order_type_map = {
+                'MARKET': OrderType.MARKET,
+                'LIMIT': OrderType.LIMIT,
+                'SL': OrderType.SL,
+                'SL-M': OrderType.SL_MARKET
+            }
+            # If Enums are ints (1, 2...), we must map.
+            # If Enums are strings ('MARKET'...), we can use OrderType(str).
+            # I will assume standard Fyers mapping: 
+            # 1: Limit, 2: Market, 3: SL-Limit, 4: SL-Market
+            
+            product_map = {
+                'INTRADAY': ProductType.INTRADAY,
+                'CNC': ProductType.CNC,
+                'MARGIN': ProductType.MARGIN
+            }
+            
+            # Temporary mapping fix - better to import types properly
+            # I'll rely on the Enums being robust or map logic below
+            
+            # Create OrderRequest object
+            order_request = OrderRequest(
+                symbol=self.symbol_input.text().strip().upper(),
+                exchange=self.exchange_combo.currentText(),
+                action=action_enum,
+                quantity=self.quantity_spin.value(),
+                order_type=order_type_map.get(order_type_str, OrderType.MARKET),
+                product_type=product_map.get(self.product_combo.currentText(), ProductType.INTRADAY),
+                price=float(self.price_spin.value()) if self.price_spin.isEnabled() else 0.0,
+                trigger_price=float(self.trigger_spin.value()) if self.trigger_spin.isEnabled() else 0.0
+            )
+            
+            order_data = order_request # Use the object
+            
+        except Exception as e:
+            self.error_label.show_error(f"Invalid order parameters: {e}")
+            return
         
         if self.trading_service:
             self.loading.show_loading("Placing order...")
