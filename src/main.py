@@ -1,8 +1,13 @@
 """Main application entry point for Fyers Trading System"""
 import sys
+import os
 import logging
 from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
+
+# Add src to path so imports like 'database.token_db' work
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src'))
 
 from src.database.connection import init_db, get_session
 from src.services.broker_service import BrokerService
@@ -16,7 +21,6 @@ from src.ui.windows.login_window import LoginWindow
 from src.ui.windows.dashboard_window import DashboardWindow
 from src.ui.styles import MAIN_STYLESHEET
 
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -29,8 +33,29 @@ class TradingApp:
     """Main application controller"""
     
     def __init__(self):
+        # Fix taskbar icon grouping on Windows
+        if os.name == 'nt':
+            try:
+                import ctypes
+                myappid = 'fyers.trading.desktop.app.1.0'
+                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+            except Exception:
+                pass
+                
         self.app = QApplication(sys.argv)
         self.app.setApplicationName("Fyers Trading")
+        
+        # Set Application Icon
+        try:
+            icon_path = os.path.join(os.path.dirname(__file__), '..', 'assets', 'logo.png')
+            if os.path.exists(icon_path):
+                self.app.setWindowIcon(QIcon(icon_path))
+                logger.info(f"Loaded application icon from {icon_path}")
+            else:
+                logger.warning(f"Icon file not found at {icon_path}")
+        except Exception as e:
+            logger.error(f"Failed to set icon: {e}")
+            
         self.app.setStyleSheet(MAIN_STYLESHEET)
         
         # Initialize database

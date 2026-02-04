@@ -6,6 +6,9 @@ from src.ui.widgets.holdings_widget import HoldingsWidget
 from src.ui.widgets.order_book_widget import OrderBookWidget
 from src.ui.widgets.order_form_widget import OrderFormWidget
 from src.ui.widgets.watchlist_widget import WatchlistWidget
+from src.ui.widgets.live_market_widget import LiveMarketWidget
+from src.ui.widgets.analytics_widget import AnalyticsWidget
+from src.ui.widgets.auto_trading_widget import AutoTradingWidget
 
 __all__ = [
     'FundsWidget',
@@ -13,5 +16,8 @@ __all__ = [
     'HoldingsWidget',
     'OrderBookWidget',
     'OrderFormWidget',
-    'WatchlistWidget'
+    'WatchlistWidget',
+    'LiveMarketWidget',
+    'AnalyticsWidget',
+    'AutoTradingWidget'
 ]

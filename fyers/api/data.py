@@ -96,6 +96,10 @@ class BrokerData:
         """
         try:
             br_symbol = get_br_symbol(symbol, exchange)
+            if not br_symbol:
+                logger.warning(f"Symbol not found: {symbol} in {exchange}")
+                return {"s": "error", "message": "Symbol not found"}
+                
             encoded_symbol = urllib.parse.quote(br_symbol)
 
             # Use depth endpoint to get quotes with OI data
@@ -304,6 +308,10 @@ class BrokerData:
             br_symbol = get_br_symbol(symbol, exchange)
             logger.debug(f"Using broker symbol: {br_symbol}")
             
+            if not br_symbol:
+                logger.warning(f"Symbol not found for history: {symbol} in {exchange}")
+                return pd.DataFrame()
+                
             # Check for unsupported timeframes first
             if interval in ['W', 'M']:
                 raise Exception(f"Timeframe '{interval}' is not supported by Fyers. Supported timeframes are:\n"

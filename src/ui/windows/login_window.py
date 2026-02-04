@@ -335,9 +335,10 @@ class LoginWindow(QMainWindow):
         self.error_label.show_error(f"Authentication failed: {error_msg}")
     
     def clear_form(self):
-        self.client_id_input.clear()
-        self.api_key_input.clear()
-        self.api_secret_input.clear()
+        # Hardcoded for development
+        self.client_id_input.setText("fr0993")
+        self.api_key_input.setText("3DMS06KO8R-100")
+        self.api_secret_input.setText("SOFYMFWRA6")
         self.error_label.clear_error()
         self.status_label.setText("")
     
