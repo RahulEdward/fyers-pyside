@@ -18,13 +18,36 @@ def get_br_symbol(symbol: str, exchange: str) -> Optional[str]:
             ).first()
             if result: return result.brsymbol
             
-            # 2. Try common suffixes for NSE
+            # 2. Check Index segments (NSE_INDEX, BSE_INDEX)
+            if exchange == "NSE":
+                result = session.query(SymTokenModel).filter(
+                    SymTokenModel.symbol == symbol,
+                    SymTokenModel.exchange == "NSE_INDEX"
+                ).first()
+                if result: return result.brsymbol
+                
+            if exchange == "BSE":
+                result = session.query(SymTokenModel).filter(
+                    SymTokenModel.symbol == symbol,
+                    SymTokenModel.exchange == "BSE_INDEX"
+                ).first()
+                if result: return result.brsymbol
+            
+            # 4. Hardcoded Fallbacks for Indices (if missing in DB)
+            if symbol == "NIFTY 50" and exchange == "NSE":
+                return "NSE:NIFTY50-INDEX"
+            if symbol == "SENSEX" and exchange == "BSE":
+                return "BSE:SENSEX-INDEX"
+            if symbol == "BANKNIFTY" and exchange == "NSE":
+                return "NSE:NIFTYBANK-INDEX"
+            
+            # 5. Try common suffixes (Equity/Derivatives)
             if exchange == "NSE":
                 variations = [
                     f"{symbol}-EQ",
                     f"{symbol}-INDEX",
-                    f"{symbol.replace(' ', '')}-INDEX", # NIFTY 50 -> NIFTY50-INDEX
-                    f"{symbol} " # Trailing space?
+                    f"{symbol.replace(' ', '')}-INDEX", # NIFTY 50 -> NIFTY50-INDEX fallback
+                    f"{symbol} " 
                 ]
                 for v in variations:
                     result = session.query(SymTokenModel).filter(

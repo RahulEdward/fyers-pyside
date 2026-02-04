@@ -1,7 +1,8 @@
 """Live Market Widget - Modern animated market overview with live prices from Fyers API"""
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QFrame, QScrollArea, QPushButton, QMessageBox
+    QLabel, QFrame, QScrollArea, QPushButton, QMessageBox,
+    QSizePolicy
 )
 from PySide6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, Property, Signal, QThread
 from PySide6.QtGui import QColor, QPainter, QLinearGradient, QPen, QBrush
@@ -63,7 +64,7 @@ class MiniSparkline(QWidget):
         super().__init__(parent)
         self.data = []
         self.is_positive = True
-        self.setFixedHeight(40)
+        self.setFixedHeight(30)
         self.setMinimumWidth(80)
     
     def set_data(self, data: list, is_positive: bool = True):
@@ -125,13 +126,15 @@ class MarketCard(QFrame):
         self.setup_ui()
         
     def setup_ui(self):
-        self.setFixedSize(200, 130)
+        self.setMinimumWidth(200)
+        self.setMinimumHeight(135)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.setCursor(Qt.PointingHandCursor)
         self._update_style()
         
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 12, 16, 12)
-        layout.setSpacing(4)
+        layout.setContentsMargins(12, 6, 12, 6)
+        layout.setSpacing(2)
         
         # Header row
         header = QHBoxLayout()
@@ -255,24 +258,24 @@ class StatCard(QFrame):
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
                     stop:0 {COLORS['surface']}, stop:1 rgba(0, 208, 156, 0.1));
                 border: 1px solid {COLORS['border']};
-                border-radius: 16px;
+                border-radius: 12px;
             }}
         """)
-        self.setMinimumHeight(100)
+        self.setFixedHeight(70)
         
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 16, 20, 16)
-        layout.setSpacing(8)
+        layout.setContentsMargins(10, 6, 10, 6)
+        layout.setSpacing(2)
         
         # Header with icon
         header = QHBoxLayout()
         
         icon_label = QLabel(self.icon)
         icon_label.setStyleSheet(f"""
-            font-size: 24px;
+            font-size: 16px;
             background: {self.color}20;
-            padding: 8px;
-            border-radius: 8px;
+            padding: 4px;
+            border-radius: 6px;
         """)
         header.addWidget(icon_label)
         header.addStretch()
@@ -282,7 +285,7 @@ class StatCard(QFrame):
         # Value
         self.value_label = QLabel("₹0.00")
         self.value_label.setStyleSheet(f"""
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
             color: {COLORS['text_primary']};
         """)
@@ -291,7 +294,7 @@ class StatCard(QFrame):
         # Title
         title_label = QLabel(self.title)
         title_label.setStyleSheet(f"""
-            font-size: 12px;
+            font-size: 10px;
             color: {COLORS['text_secondary']};
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -420,7 +423,7 @@ class LiveMarketWidget(QWidget):
         # Market Cards Container (scrollable)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         scroll.setStyleSheet(f"""
             QScrollArea {{
                 border: none;
@@ -516,7 +519,7 @@ class LiveMarketWidget(QWidget):
                 self.market_data_service = MarketDataService(access_token, user_id)
                 
                 # Set global callback for streaming updates
-                self.market_data_service.set_global_callback(self._on_streaming_data)
+                # self.market_data_service.set_global_callback(self._on_streaming_data)
                 
                 # Try to connect streaming
                 self._connect_streaming()
